@@ -1,28 +1,30 @@
-name: Update README on PR
+name: Update README in Feature Branch
 
 on:
-  pull_request:
+  push:
     branches:
-      - branch1  
+      - branch1
 
 jobs:
-  update-readme:
+  update_readme_job:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Update README
-      run: |
-        echo "This README was updated on $(date)" >> README.md
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Commit and push changes
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add README.md
-        git commit -m "Update README file on pull request creation"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update README
+        run: |
+          echo "Hello from branch1! Updated on $(date)" > README.md
+
+      - name: Commit and push changes
+        run: |
+          git checkout -b feature/update-readme
+          git add README.md
+          git commit -m "Update README from branch1"
+          git push origin feature/update-readme --force
