@@ -1,0 +1,38 @@
+name: Update README on Push to Develop
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  update_readme_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Verify Source Branch
+        id: check_branch
+        run: |
+          if [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
+            echo "NEW_BRANCH=true" >> $GITHUB_ENV
+          else
+            git fetch origin ${{ github.event.before }}
+            SOURCE_BRANCH=$(git branch -r --contains ${{ github.event.before }} | grep -E 'branch1|branch2' || true)
+            echo "SOURCE_BRANCH=$SOURCE_BRANCH" >> $GITHUB_ENV
+          fi
+
+      - name: Update README if from Branch1 or Branch2
+        if: env.SOURCE_BRANCH != ""
+        run: |
+          echo "### Update from $SOURCE_BRANCH" > README.md
+          echo "- **Updated Time**: $(date)" >> README.md
+
+      - name: Commit and Push Changes
+        if: env.SOURCE_BRANCH != ""
+        run: |
+          git add README.md
+          git commit -m "Update README after merge from $SOURCE_BRANCH"
+          git push origin develop
