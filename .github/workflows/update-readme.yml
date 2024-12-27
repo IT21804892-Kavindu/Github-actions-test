@@ -3,7 +3,7 @@ name: Update README on PR
 on:
   pull_request:
     branches:
-      - branch1  # Replace 'main' with the name of your source branch
+      - branch1  
 
 jobs:
   update-readme:
