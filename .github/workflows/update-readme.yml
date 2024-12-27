@@ -1,9 +1,8 @@
-name: Update README in Feature Branch
+name: Update README on Pull Request
 
 on:
-  push:
-    branches:
-      - branch1
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 jobs:
   update_readme_job:
@@ -18,13 +17,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Extract PR Information
+        id: pr_info
+        run: |
+          echo "PR_BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV
+          echo "BASE_BRANCH=${{ github.base_ref }}" >> $GITHUB_ENV
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "PR_TIME=$(date)" >> $GITHUB_ENV
+
       - name: Update README
         run: |
-          echo "Hello from branch1! Updated on $(date)" > README.md
+          echo "### Pull Request Details" > README.md
+          echo "- **Branch**: $PR_BRANCH" >> README.md
+          echo "- **Base Branch**: $BASE_BRANCH" >> README.md
+          echo "- **Title**: $PR_TITLE" >> README.md
+          echo "- **Time**: $PR_TIME" >> README.md
 
-      - name: Commit and push changes
+      - name: Commit and Push Changes
         run: |
-          git checkout -b feature/update-readme
+          git checkout ${{ github.head_ref }}
           git add README.md
-          git commit -m "Update README from branch1"
-          git push origin feature/update-readme --force
+          git commit -m "Update README with PR details"
+          git push origin ${{ github.head_ref }}
